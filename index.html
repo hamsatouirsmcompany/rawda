@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام إدارة حجوزات الروضة الشريفة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F5F0;
+  --panel:#FFFFFF;
+  --ink:#1B2321;
+  --ink-soft:#5B655F;
+  --line:#E4E1D6;
+  --teal:#0E4B44;
+  --teal-dark:#0A3733;
+  --teal-soft:#E6EEEC;
+  --gold:#B9922F;
+  --gold-soft:#F5EAD1;
+  --red:#B14A3E;
+  --red-soft:#F6E4E0;
+  --amber:#B8842A;
+  --amber-soft:#F6EAD3;
+  --blue:#2E5F8A;
+  --blue-soft:#E4ECF3;
+  --purple:#6B4E8E;
+  --purple-soft:#EDE5F3;
+  --gray-soft:#EBEAE4;
+  --radius:10px;
+  --shadow:0 1px 2px rgba(15,25,20,.06), 0 4px 14px rgba(15,25,20,.05);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'IBM Plex Sans Arabic', sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  font-size:14.5px;
+  line-height:1.6;
+}
+button, input, select, textarea{font-family:inherit; font-size:inherit;}
+button{cursor:pointer;}
+a{color:inherit;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:#D8D5C8;border-radius:8px;}
+
+/* ---------- Login ---------- */
+#login-screen{
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle at 30% 20%, #12564E 0%, #0A3733 55%, #08302C 100%);
+  padding:20px;
+}
+.login-card{
+  background:var(--panel); width:100%; max-width:400px; border-radius:16px;
+  padding:40px 36px; box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+.login-brand{display:flex; align-items:center; gap:12px; margin-bottom:28px;}
+.login-brand .mark{
+  width:44px;height:44px;border-radius:11px;background:var(--teal);
+  display:flex;align-items:center;justify-content:center;color:var(--gold-soft);font-size:22px;flex-shrink:0;
+}
+.login-brand h1{font-size:16.5px; font-weight:700; margin:0; line-height:1.4;}
+.login-brand p{margin:2px 0 0; font-size:12.5px; color:var(--ink-soft);}
+.field{margin-bottom:16px;}
+.field label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:6px;}
+.field input, .field select, .field textarea{
+  width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
+  background:#FBFAF7; color:var(--ink); outline:none; transition:border-color .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus{border-color:var(--teal);}
+.btn{
+  border:none; border-radius:8px; padding:10px 18px; font-weight:600; font-size:13.5px;
+  display:inline-flex; align-items:center; justify-content:center; gap:6px; transition:filter .15s, transform .05s;
+}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:var(--teal); color:#fff;}
+.btn-primary:hover{filter:brightness(1.12);}
+.btn-gold{background:var(--gold); color:#2B2107;}
+.btn-gold:hover{filter:brightness(1.08);}
+.btn-ghost{background:var(--teal-soft); color:var(--teal-dark);}
+.btn-ghost:hover{filter:brightness(0.97);}
+.btn-danger{background:var(--red-soft); color:var(--red);}
+.btn-block{width:100%;}
+.btn-sm{padding:6px 12px; font-size:12.5px;}
+.error-box{background:var(--red-soft); color:var(--red); padding:10px 12px; border-radius:8px; font-size:13px; margin-bottom:14px; display:none;}
+.login-hint{margin-top:18px; font-size:11.5px; color:var(--ink-soft); text-align:center;}
+
+/* ---------- App shell ---------- */
+#app{display:none; min-height:100vh; grid-template-columns:1fr 220px;}
+#app.active{display:grid;}
+aside.sidebar{
+  background:var(--teal-dark); color:#EAF3F0; padding:22px 16px; display:flex; flex-direction:column;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.brand{display:flex; align-items:center; gap:10px; padding:0 6px 22px; border-bottom:1px solid rgba(255,255,255,.1); margin-bottom:16px;}
+.brand .mark{width:34px;height:34px;border-radius:9px;background:var(--gold); color:#2B2107; display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.brand strong{font-size:14px; display:block; line-height:1.3;}
+.brand span{font-size:11px; opacity:.65;}
+nav.nav{display:flex; flex-direction:column; gap:3px; flex:1;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; color:#CFE2DD;
+  font-size:13.5px; font-weight:500; cursor:pointer; border:none; background:transparent; text-align:right; width:100%;
+}
+.nav-item:hover{background:rgba(255,255,255,.06);}
+.nav-item.active{background:rgba(255,255,255,.13); color:#fff;}
+.nav-item .ic{width:18px; text-align:center; opacity:.9;}
+.nav-sep{height:1px; background:rgba(255,255,255,.1); margin:10px 4px;}
+.sidebar-foot{padding-top:14px; border-top:1px solid rgba(255,255,255,.1); font-size:11.5px; color:#9CB8B1;}
+
+main.content{padding:22px 26px 60px; min-width:0;}
+.topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; gap:16px;}
+.topbar h2{font-size:19px; margin:0; font-weight:700;}
+.topbar .sub{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+.topbar-right{display:flex; align-items:center; gap:10px;}
+.icon-btn{
+  width:38px; height:38px; border-radius:9px; border:1px solid var(--line); background:var(--panel);
+  display:flex; align-items:center; justify-content:center; position:relative; font-size:16px;
+}
+.badge-dot{position:absolute; top:-3px; left:-3px; background:var(--red); color:#fff; font-size:10px; min-width:16px; height:16px; border-radius:9px; display:flex; align-items:center; justify-content:center; padding:0 3px;}
+.user-chip{display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:6px 10px 6px 14px;}
+.user-chip .av{width:26px;height:26px;border-radius:50%;background:var(--teal-soft); color:var(--teal-dark); display:flex;align-items:center;justify-content:center; font-size:12px; font-weight:700;}
+.user-chip .role{font-size:10.5px; color:var(--ink-soft);}
+
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);}
+.panel-pad{padding:18px 20px;}
+
+/* dashboard stats */
+.stats-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; margin-bottom:20px;}
+.stat-card{padding:16px 16px; border-radius:var(--radius); background:var(--panel); border:1px solid var(--line); box-shadow:var(--shadow);}
+.stat-card .num{font-size:24px; font-weight:700; line-height:1;}
+.stat-card .lbl{font-size:12px; color:var(--ink-soft); margin-top:7px;}
+.stat-card.accent{background:var(--teal); color:#fff; border-color:var(--teal);}
+.stat-card.accent .lbl{color:#CFE6E0;}
+
+.alert-box{background:var(--gold-soft); border:1px solid #E4CE94; border-radius:var(--radius); padding:14px 16px; margin-bottom:20px;}
+.alert-box h4{margin:0 0 8px; font-size:13.5px; color:#6E5518;}
+.alert-item{font-size:13px; padding:6px 0; border-top:1px dashed #E4CE94;}
+.alert-item:first-child{border-top:none;}
+
+/* tables */
+.table-wrap{overflow-x:auto;}
+table{width:100%; border-collapse:collapse; font-size:13px;}
+thead th{
+  text-align:right; font-size:11.5px; color:var(--ink-soft); font-weight:600; padding:10px 14px;
+  border-bottom:1px solid var(--line); white-space:nowrap; background:#FBFAF6;
+}
+tbody td{padding:11px 14px; border-bottom:1px solid #F0EEE6; white-space:nowrap;}
+tbody tr:hover{background:#FBFAF6;}
+.badge{display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11.5px; font-weight:600; white-space:nowrap;}
+
+.toolbar{display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+.toolbar input[type=text], .toolbar select{
+  padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--panel); min-width:150px;
+}
+.toolbar .grow{flex:1; min-width:200px;}
+.spacer{flex:1;}
+
+.row-actions{display:flex; gap:6px;}
+.link-btn{background:none;border:none;color:var(--teal); font-size:12.5px; font-weight:600; padding:4px 6px;}
+.link-btn:hover{text-decoration:underline;}
+
+/* modal */
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(15,25,20,.45); display:none; align-items:center; justify-content:center;
+  padding:20px; z-index:100;
+}
+.modal-backdrop.active{display:flex;}
+.modal{
+  background:var(--panel); border-radius:14px; width:100%; max-width:560px; max-height:88vh; overflow-y:auto;
+  box-shadow:0 24px 60px rgba(0,0,0,.3);
+}
+.modal.wide{max-width:760px;}
+.modal-head{display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--line);}
+.modal-head h3{margin:0; font-size:15.5px;}
+.modal-close{background:none; border:none; font-size:18px; color:var(--ink-soft); line-height:1;}
+.modal-body{padding:20px 22px;}
+.modal-foot{padding:16px 22px; border-top:1px solid var(--line); display:flex; justify-content:flex-start; gap:10px;}
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+.form-grid .full{grid-column:1/-1;}
+
+.timeline{list-style:none; margin:0; padding:0; border-right:2px solid var(--line); padding-right:16px;}
+.timeline li{position:relative; padding-bottom:16px;}
+.timeline li::before{content:''; position:absolute; right:-21px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--teal);}
+.timeline .t-date{font-size:11px; color:var(--ink-soft);}
+.timeline .t-text{font-size:13px; margin-top:2px;}
+.timeline .t-by{font-size:11.5px; color:var(--ink-soft); margin-top:1px;}
+
+.toast-wrap{position:fixed; bottom:22px; left:22px; display:flex; flex-direction:column; gap:8px; z-index:200;}
+.toast{background:var(--ink); color:#fff; padding:11px 18px; border-radius:8px; font-size:13px; box-shadow:0 8px 24px rgba(0,0,0,.25); animation:toastIn .2s ease;}
+.toast.err{background:var(--red);}
+.toast.ok{background:var(--teal-dark);}
+@keyframes toastIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+
+.empty-state{text-align:center; padding:50px 20px; color:var(--ink-soft);}
+.empty-state .ic{font-size:30px; margin-bottom:10px;}
+
+.section-title{font-size:14px; font-weight:700; margin:0 0 10px;}
+.pill-tabs{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+.pill-tab{padding:7px 14px; border-radius:20px; border:1px solid var(--line); background:var(--panel); font-size:12.5px; font-weight:600; color:var(--ink-soft);}
+.pill-tab.active{background:var(--teal); color:#fff; border-color:var(--teal);}
+
+.notif-panel{position:absolute; top:48px; left:0; width:320px; background:var(--panel); border:1px solid var(--line); border-radius:12px; box-shadow:0 16px 40px rgba(0,0,0,.15); z-index:50; max-height:400px; overflow-y:auto; display:none;}
+.notif-panel.active{display:block;}
+.notif-item{padding:12px 16px; border-bottom:1px solid #F0EEE6; font-size:12.5px;}
+.notif-item.unread{background:#F6FAF9;}
+.notif-item strong{display:block; font-size:12.5px; margin-bottom:3px;}
+.notif-item .time{font-size:10.5px; color:var(--ink-soft); margin-top:4px;}
+
+.kv-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 20px; font-size:13px;}
+.kv-grid .k{color:var(--ink-soft); font-size:11.5px;}
+.kv-grid .v{font-weight:600; margin-top:2px;}
+
+.loading-overlay{position:fixed; inset:0; background:rgba(246,245,240,.7); z-index:300; display:none; align-items:center; justify-content:center;}
+.loading-overlay.active{display:flex;}
+.spinner{width:34px;height:34px;border:3px solid var(--line); border-top-color:var(--teal); border-radius:50%; animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.report-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-bottom:20px;}
+
+@media (max-width: 860px){
+  #app.active{display:flex; flex-direction:column;}
+  aside.sidebar{position:relative; height:auto; flex-direction:row; overflow-x:auto; padding:12px;}
+  nav.nav{flex-direction:row;}
+  .brand{display:none;}
+  .sidebar-foot{display:none;}
+  main.content{padding:16px;}
+  .form-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="mark">🕋</div>
+      <div>
+        <h1>نظام حجوزات الروضة الشريفة</h1>
+        <p>لوحة تحكم داخلية لشركة السياحة</p>
+      </div>
+    </div>
+    <div class="error-box" id="login-error"></div>
+    <div class="field">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="login-email" placeholder="name@company.com" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>كلمة المرور</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary btn-block" id="login-btn" onclick="doLogin()">تسجيل الدخول</button>
+    <div class="login-hint">في أول استخدام: نفّذ setupSheets() من محرر Apps Script لإنشاء حساب المدير الافتراضي.</div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <main class="content">
+    <div class="topbar">
+      <div>
+        <h2 id="page-title">لوحة التحكم</h2>
+        <div class="sub" id="page-sub">نظرة عامة على العملاء والحجوزات</div>
+      </div>
+      <div class="topbar-right">
+        <div style="position:relative;">
+          <button class="icon-btn" onclick="toggleNotifPanel()">🔔<span class="badge-dot" id="notif-count" style="display:none;">0</span></button>
+          <div class="notif-panel" id="notif-panel"></div>
+        </div>
+        <div class="user-chip">
+          <div class="av" id="user-av">-</div>
+          <div>
+            <div style="font-size:12.5px; font-weight:600;" id="user-name-chip">-</div>
+            <div class="role" id="user-role-chip">-</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()">خروج</button>
+      </div>
+    </div>
+    <div id="page-content"></div>
+  </main>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">🕋</div>
+      <div><strong>نظام الروضة</strong><span>إدارة الحجوزات</span></div>
+    </div>
+    <nav class="nav" id="nav-menu"></nav>
+    <div class="sidebar-foot">تكامل نسك: قيد الإعداد لاحقًا 🔒</div>
+  </aside>
+</div>
+
+<div class="modal-backdrop" id="modal-backdrop"><div class="modal" id="modal-box"></div></div>
+<div class="toast-wrap" id="toast-wrap"></div>
+<div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
+
+<script>
+/* ======================= CONFIG ======================= */
+// ضع هنا رابط الـ Web App الذي حصلت عليه بعد نشر Code.gs
+const API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+/* ======================= STATE ======================= */
+let STATE = {
+  token: localStorage.getItem('rw_token') || null,
+  user: JSON.parse(localStorage.getItem('rw_user') || 'null'),
+  page: 'dashboard',
+  customers: [], appointments: [], users: [], notifications: []
+};
+
+const BOOKING_LABELS = {
+  NEW:['🆕 عميل جديد','gray'], READY_TO_BOOK:['📋 جاهز للحجز','blue'], SEARCHING:['🔎 البحث عن موعد','amber'],
+  WAITING_AVAILABILITY:['⏳ انتظار موعد','amber'], AVAILABLE:['🟡 يوجد موعد مناسب','gold'],
+  BOOKING_IN_PROGRESS:['📝 قيد الحجز','blue'], CONFIRMED:['✅ تم تأكيد الحجز','teal'], TICKETED:['🎫 بيانات محفوظة','teal'],
+  MODIFICATION_REQUIRED:['🔄 يحتاج تعديل','purple'], RESCHEDULED:['🔁 تم تغيير الموعد','purple'],
+  CANCELLED:['❌ ملغى','red'], NO_SHOW:['🚫 لم يحضر','red'], REBOOK_REQUIRED:['🔙 يحتاج إعادة حجز','amber'],
+  COMPLETED:['🏁 مكتمل','teal']
+};
+const DATA_LABELS = {
+  INCOMPLETE:['بيانات ناقصة','red'], COMPLETE:['بيانات مكتملة','blue'], VERIFIED:['تمت المراجعة','teal'],
+  INVALID_DATA:['مشكلة في البيانات','red'], UPDATE_REQUIRED:['تحتاج تحديث','amber']
+};
+const APPT_LABELS = {
+  AVAILABLE:['متاح','teal'], HELD:['محجوز مؤقتًا','amber'], BOOKED:['محجوز','blue'],
+  CANCELLED:['ملغي','red'], EXPIRED:['منتهي','gray']
+};
+
+/* ======================= API ======================= */
+async function api(action, payload){
+  if(API_URL.indexOf('PASTE_YOUR') === 0){
+    toast('لم يتم ضبط رابط الـ API بعد — عدّل المتغير API_URL في أعلى الملف', 'err');
+    throw new Error('API_URL not set');
+  }
+  showLoading(true);
+  try{
+    const res = await fetch(API_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'}, // avoids CORS preflight to Apps Script
+      body: JSON.stringify(Object.assign({action, token: STATE.token}, payload || {}))
+    });
+    const data = await res.json();
+    if(!data.ok){
+      toast(data.error || 'حدث خطأ', 'err');
+      if((data.error||'').includes('الجلسة')) { doLogout(true); }
+    }
+    return data;
+  }catch(err){
+    toast('تعذّر الاتصال بالخادم', 'err');
+    return {ok:false, error:String(err)};
+  }finally{
+    showLoading(false);
+  }
+}
+function showLoading(on){ document.getElementById('loading-overlay').classList.toggle('active', on); }
+
+/* ======================= AUTH ======================= */
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errBox = document.getElementById('login-error');
+  errBox.style.display = 'none';
+  if(!email || !password){ errBox.textContent='الرجاء إدخال البريد وكلمة المرور'; errBox.style.display='block'; return; }
+  const data = await api('login', {email, password});
+  if(data.ok){
+    STATE.token = data.token; STATE.user = data.user;
+    localStorage.setItem('rw_token', data.token);
+    localStorage.setItem('rw_user', JSON.stringify(data.user));
+    enterApp();
+  } else {
+    errBox.textContent = data.error || 'فشل تسجيل الدخول';
+    errBox.style.display = 'block';
+  }
+}
+function doLogout(silent){
+  if(!silent) api('logout', {});
+  localStorage.removeItem('rw_token'); localStorage.removeItem('rw_user');
+  STATE.token=null; STATE.user=null;
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('login-screen').style.display='flex';
+}
+
+function enterApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').classList.add('active');
+  document.getElementById('user-name-chip').textContent = STATE.user.name;
+  document.getElementById('user-role-chip').textContent = STATE.user.role === 'admin' ? 'مدير' : 'موظف';
+  document.getElementById('user-av').textContent = STATE.user.name.trim().charAt(0);
+  buildNav();
+  goPage('dashboard');
+  loadNotifications();
+  setInterval(loadNotifications, 45000);
+}
+
+/* ======================= NAV ======================= */
+const NAV_ITEMS = [
+  {id:'dashboard', ic:'📊', label:'لوحة التحكم'},
+  {id:'customers', ic:'👥', label:'العملاء'},
+  {id:'appointments', ic:'🕌', label:'مواعيد الروضة'},
+  {id:'followup', ic:'📋', label:'متابعة اليوم'},
+  {id:'reports', ic:'📈', label:'التقارير'},
+  {id:'logs', ic:'🗂️', label:'سجل العمليات', adminOnly:true},
+  {id:'users', ic:'⚙️', label:'الموظفون', adminOnly:true},
+];
+function buildNav(){
+  const nav = document.getElementById('nav-menu');
+  nav.innerHTML = NAV_ITEMS.filter(n=> !n.adminOnly || STATE.user.role==='admin').map(n=>
+    `<button class="nav-item" id="nav-${n.id}" onclick="goPage('${n.id}')"><span class="ic">${n.ic}</span> ${n.label}</button>`
+  ).join('');
+}
+function setActiveNav(id){
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const el = document.getElementById('nav-'+id); if(el) el.classList.add('active');
+}
+
+const PAGE_META = {
+  dashboard:['لوحة التحكم','نظرة عامة على العملاء والحجوزات'],
+  customers:['العملاء','إدارة بيانات العملاء وحالاتهم'],
+  appointments:['مواعيد الروضة','إدارة وإضافة مواعيد زيارة الروضة الشريفة'],
+  followup:['متابعة اليوم','العملاء الذين يحتاجون متابعة الآن'],
+  reports:['التقارير','إحصائيات الأداء والحجوزات'],
+  logs:['سجل العمليات','جميع العمليات المسجلة في النظام'],
+  users:['الموظفون','إدارة حسابات وصلاحيات الموظفين'],
+};
+
+async function goPage(id){
+  STATE.page = id;
+  setActiveNav(id);
+  document.getElementById('page-title').textContent = PAGE_META[id][0];
+  document.getElementById('page-sub').textContent = PAGE_META[id][1];
+  const c = document.getElementById('page-content');
+  c.innerHTML = '';
+  if(id==='dashboard') renderDashboard();
+  else if(id==='customers') renderCustomers();
+  else if(id==='appointments') renderAppointments();
+  else if(id==='followup') renderFollowUp();
+  else if(id==='reports') renderReports();
+  else if(id==='logs') renderLogs();
+  else if(id==='users') renderUsers();
+}
+
+/* ======================= HELPERS ======================= */
+function badge(map, key){
+  const [label, color] = map[key] || [key||'-','gray'];
+  return `<span class="badge" style="background:var(--${color}-soft, var(--gray-soft)); color:var(--${color}, #555)">${label}</span>`;
+}
+function fmtDate(d){ if(!d) return '-'; const dt=new Date(d); if(isNaN(dt)) return d; return dt.toLocaleDateString('ar-EG'); }
+function fmtDateTime(d){ if(!d) return '-'; const dt=new Date(d); if(isNaN(dt)) return d; return dt.toLocaleDateString('ar-EG')+' '+dt.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}); }
+function toast(msg, type){
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type==='err'?'err':type==='ok'?'ok':'');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(), 3500);
+}
+function openModal(html, wide){
+  document.getElementById('modal-box').className = 'modal' + (wide?' wide':'');
+  document.getElementById('modal-box').innerHTML = html;
+  document.getElementById('modal-backdrop').classList.add('active');
+}
+function closeModal(){ document.getElementById('modal-backdrop').classList.remove('active'); }
+document.getElementById('modal-backdrop').addEventListener('click', e=>{ if(e.target.id==='modal-backdrop') closeModal(); });
+
+/* ======================= DASHBOARD ======================= */
+async function renderDashboard(){
+  const c = document.getElementById('page-content');
+  c.innerHTML = '<div class="panel panel-pad">جاري التحميل...</div>';
+  const data = await api('dashboardStats', {});
+  if(!data.ok) return;
+  const counts = data.counts;
+  const cards = [
+    ['total', data.total, 'إجمالي العملاء', true],
+    ['NEW', counts.NEW, 'عملاء جدد'],
+    ['READY_TO_BOOK', counts.READY_TO_BOOK, 'جاهزون للحجز'],
+    ['SEARCHING', counts.SEARCHING, 'جاري البحث لهم'],
+    ['WAITING_AVAILABILITY', counts.WAITING_AVAILABILITY, 'انتظار توفر موعد'],
+    ['AVAILABLE', counts.AVAILABLE, 'يوجد موعد مناسب'],
+    ['BOOKING_IN_PROGRESS', counts.BOOKING_IN_PROGRESS, 'حجوزات قيد التنفيذ'],
+    ['CONFIRMED', counts.CONFIRMED, 'حجوزات مؤكدة'],
+    ['MODIFICATION_REQUIRED', counts.MODIFICATION_REQUIRED, 'تحتاج تعديل'],
+    ['RESCHEDULED', counts.RESCHEDULED, 'تم تغيير موعدها'],
+    ['CANCELLED', counts.CANCELLED, 'حجوزات ملغاة'],
+    ['NO_SHOW', counts.NO_SHOW, 'عملاء لم يحضروا'],
+    ['REBOOK_REQUIRED', counts.REBOOK_REQUIRED, 'يحتاجون إعادة حجز'],
+    ['COMPLETED', counts.COMPLETED, 'حجوزات مكتملة'],
+  ];
+  c.innerHTML = `
+    <div class="alert-box" style="${data.alerts.length? '' : 'display:none;'}">
+      <h4>🔔 تنبيهات مهمة</h4>
+      ${data.alerts.map(a=>`<div class="alert-item">${a}</div>`).join('')}
+    </div>
+    <div class="stats-grid">
+      ${cards.map(([k,n,l,accent])=>`<div class="stat-card ${accent?'accent':''}"><div class="num">${n||0}</div><div class="lbl">${l}</div></div>`).join('')}
+    </div>`;
+}
+
+/* ======================= CUSTOMERS ======================= */
+async function loadCustomers(filters){
+  const data = await api('listCustomers', {filters: filters||{}});
+  if(data.ok) STATE.customers = data.customers;
+  return data.ok;
+}
+async function renderCustomers(){
+  const c = document.getElementById('page-content');
+  c.innerHTML = `
+    <div class="toolbar">
+      <input type="text" class="grow" id="cf-search" placeholder="بحث بالاسم / الجواز / الهاتف">
+      <select id="cf-status"><option value="">كل حالات الحجز</option>${Object.entries(BOOKING_LABELS).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('')}</select>
+      <select id="cf-data"><option value="">كل حالات البيانات</option>${Object.entries(DATA_LABELS).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('')}</select>
+      <button class="btn btn-ghost btn-sm" onclick="applyCustomerFilters()">فلترة</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="exportCustomersCsv()">تصدير CSV</button>
+      <button class="btn btn-primary btn-sm" onclick="openCustomerForm()">+ إضافة عميل</button>
+    </div>
+    <div class="panel"><div class="table-wrap" id="customers-table"></div></div>`;
+  await loadCustomers();
+  drawCustomersTable();
+}
+function applyCustomerFilters(){
+  const search = document.getElementById('cf-search').value;
+  const bookingStatus = document.getElementById('cf-status').value;
+  const dataStatus = document.getElementById('cf-data').value;
+  loadCustomers({search, bookingStatus, dataStatus}).then(drawCustomersTable);
+}
+function drawCustomersTable(){
+  const wrap = document.getElementById('customers-table');
+  if(!STATE.customers.length){ wrap.innerHTML = `<div class="empty-state"><div class="ic">👥</div>لا يوجد عملاء مطابقون</div>`; return; }
+  wrap.innerHTML = `<table><thead><tr>
+    <th>الاسم</th><th>الجواز</th><th>الهاتف</th><th>الوصول</th><th>المغادرة</th>
+    <th>حالة البيانات</th><th>حالة الحجز</th><th>الأولوية</th><th>الموظف</th><th></th>
+  </tr></thead><tbody>
+  ${STATE.customers.map(cu=>`<tr>
+    <td><a href="javascript:void(0)" onclick="openCustomerDetail('${cu.id}')" style="font-weight:600; color:var(--teal-dark);">${esc(cu.fullName||'-')}</a></td>
+    <td>${esc(cu.passportNumber||'-')}</td>
+    <td>${esc(cu.phone||'-')}</td>
+    <td>${fmtDate(cu.arrivalDate)}</td>
+    <td>${fmtDate(cu.departureDate)}</td>
+    <td>${badge(DATA_LABELS, cu.dataStatus)}</td>
+    <td>${badge(BOOKING_LABELS, cu.bookingStatus)}</td>
+    <td>${cu.priority||''}</td>
+    <td>${esc(cu.assignedEmployee||'-')}</td>
+    <td class="row-actions">
+      <button class="link-btn" onclick="openCustomerForm('${cu.id}')">تعديل</button>
+      <button class="link-btn" onclick="archiveCustomer('${cu.id}')" style="color:var(--red);">أرشفة</button>
+    </td>
+  </tr>`).join('')}
+  </tbody></table>`;
+}
+function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function openCustomerForm(id){
+  const cu = id ? STATE.customers.find(x=>x.id===id) : {};
+  const f = cu || {};
+  openModal(`
+    <div class="modal-head"><h3>${id?'تعديل عميل':'إضافة عميل جديد'}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>الاسم بالكامل</label><input id="f-fullName" value="${esc(f.fullName)}"></div>
+        <div class="field"><label>رقم الجواز</label><input id="f-passportNumber" value="${esc(f.passportNumber)}"></div>
+        <div class="field"><label>الجنسية</label><input id="f-nationality" value="${esc(f.nationality)}"></div>
+        <div class="field"><label>رقم الهاتف</label><input id="f-phone" value="${esc(f.phone)}"></div>
+        <div class="field"><label>كود الدولة</label><input id="f-countryCode" value="${esc(f.countryCode)}" placeholder="+966"></div>
+        <div class="field"><label>عدد الأشخاص</label><input type="number" id="f-personsCount" value="${esc(f.personsCount)||1}"></div>
+        <div class="field"><label>تاريخ الوصول</label><input type="date" id="f-arrivalDate" value="${toInputDate(f.arrivalDate)}"></div>
+        <div class="field"><label>تاريخ المغادرة</label><input type="date" id="f-departureDate" value="${toInputDate(f.departureDate)}"></div>
+        <div class="field"><label>مدينة الوصول</label><input id="f-arrivalCity" value="${esc(f.arrivalCity)}"></div>
+        <div class="field"><label>مدينة المغادرة</label><input id="f-departureCity" value="${esc(f.departureCity)}"></div>
+        <div class="field"><label>الفترة المطلوبة من</label><input type="date" id="f-preferredFrom" value="${toInputDate(f.preferredFrom)}"></div>
+        <div class="field"><label>الفترة المطلوبة إلى</label><input type="date" id="f-preferredTo" value="${toInputDate(f.preferredTo)}"></div>
+        <div class="field"><label>الموظف المسؤول</label><input id="f-assignedEmployee" value="${esc(f.assignedEmployee || STATE.user.name)}"></div>
+        <div class="field"><label>حالة البيانات</label>
+          <select id="f-dataStatus">${Object.entries(DATA_LABELS).map(([k,v])=>`<option value="${k}" ${f.dataStatus===k?'selected':''}>${v[0]}</option>`).join('')}</select>
+        </div>
+        <div class="field full"><label>ملاحظات</label><textarea id="f-notes" rows="2">${esc(f.notes)}</textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" onclick="saveCustomer(${id?`'${id}'`:'null'})">حفظ</button>
+      <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+    </div>`, true);
+}
+function toInputDate(d){ if(!d) return ''; const dt = new Date(d); if(isNaN(dt)) return ''; return dt.toISOString().slice(0,10); }
+async function saveCustomer(id){
+  const customer = {
+    fullName: val('f-fullName'), passportNumber: val('f-passportNumber'), nationality: val('f-nationality'),
+    phone: val('f-phone'), countryCode: val('f-countryCode'), personsCount: val('f-personsCount'),
+    arrivalDate: val('f-arrivalDate'), departureDate: val('f-departureDate'), arrivalCity: val('f-arrivalCity'),
+    departureCity: val('f-departureCity'), preferredFrom: val('f-preferredFrom'), preferredTo: val('f-preferredTo'),
+    assignedEmployee: val('f-assignedEmployee'), dataStatus: val('f-dataStatus'), notes: val('f-notes')
+  };
+  const data = id ? await api('updateCustomer', {id, customer}) : await api('addCustomer', {customer});
+  if(data.ok){ toast(id?'تم تحديث بيانات العميل':'تمت إضافة العميل','ok'); closeModal(); loadCustomers().then(drawCustomersTable); }
+}
+function val(id){ const el = document.getElementById(id); return el ? el.value : ''; }
+async function archiveCustomer(id){
+  if(!confirm('هل أنت متأكد من أرشفة هذا العميل؟')) return;
+  const data = await api('archiveCustomer', {id});
+  if(data.ok){ toast('تمت الأرشفة','ok'); loadCustomers().then(drawCustomersTable); }
+}
+function exportCustomersCsv(){
+  const rows = [['الاسم','الجواز','الهاتف','الوصول','المغادرة','حالة البيانات','حالة الحجز','الموظف']];
+  STATE.customers.forEach(c=>rows.push([c.fullName,c.passportNumber,c.phone,fmtDate(c.arrivalDate),fmtDate(c.departureDate),c.dataStatus,c.bookingStatus,c.assignedEmployee]));
+  downloadCsv(rows, 'customers.csv');
+}
+function downloadCsv(rows, filename){
+  const csv = rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+}
+
+/* ------------ customer detail / timeline / booking ------------ */
+async function openCustomerDetail(id){
+  const cu = STATE.customers.find(x=>x.id===id);
+  if(!cu) return;
+  openModal(`
+    <div class="modal-head"><h3>${esc(cu.fullName)}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="kv-grid" style="margin-bottom:18px;">
+        <div><div class="k">الجواز</div><div class="v">${esc(cu.passportNumber||'-')}</div></div>
+        <div><div class="k">الهاتف</div><div class="v">${esc(cu.countryCode||'')} ${esc(cu.phone||'-')}</div></div>
+        <div><div class="k">الوصول</div><div class="v">${fmtDate(cu.arrivalDate)}</div></div>
+        <div><div class="k">المغادرة</div><div class="v">${fmtDate(cu.departureDate)}</div></div>
+        <div><div class="k">حالة البيانات</div><div class="v">${badge(DATA_LABELS, cu.dataStatus)}</div></div>
+        <div><div class="k">حالة الحجز</div><div class="v">${badge(BOOKING_LABELS, cu.bookingStatus)}</div></div>
+      </div>
+      <div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+        <select id="status-select" style="padding:8px 12px;border:1px solid var(--line);border-radius:8px;">
+          ${Object.entries(BOOKING_LABELS).map(([k,v])=>`<option value="${k}" ${cu.bookingStatus===k?'selected':''}>${v[0]}</option>`).join('')}
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="changeStatus('${cu.id}')">تحديث الحالة</button>
+        <button class="btn btn-gold btn-sm" onclick="searchAvailableFor('${cu.id}')">🔎 البحث عن موعد</button>
+      </div>
+      <div id="search-results-${cu.id}"></div>
+      <div class="section-title" style="margin-top:18px;">السجل الزمني</div>
+      <ul class="timeline" id="timeline-${cu.id}"><li class="t-text">جاري التحميل...</li></ul>
+    </div>`, true);
+  const t = await api('getTimeline', {customerId:id});
+  const tl = document.getElementById('timeline-'+id);
+  if(t.ok){
+    tl.innerHTML = t.history.length ? t.history.map(h=>`<li>
+      <div class="t-date">${fmtDateTime(h.createdAt)}</div>
+      <div class="t-text">${esc(h.reason || (h.oldStatus+' ← '+h.newStatus))}</div>
+      <div class="t-by">بواسطة: ${esc(h.changedBy||'-')}</div>
+    </li>`).join('') : '<li class="t-text">لا يوجد سجل بعد</li>';
+  }
+}
+async function changeStatus(id){
+  const newStatus = document.getElementById('status-select').value;
+  const reason = prompt('سبب التغيير (اختياري):') || '';
+  const data = await api('changeBookingStatus', {id, newStatus, reason});
+  if(data.ok){ toast('تم تحديث الحالة','ok'); await loadCustomers(); drawCustomersTable(); openCustomerDetail(id); }
+}
+async function searchAvailableFor(id){
+  const data = await api('searchAvailable', {customerId:id});
+  const box = document.getElementById('search-results-'+id);
+  if(!data.ok) return;
+  if(!data.appointments.length){ box.innerHTML = `<div class="alert-box">لا توجد مواعيد متاحة ضمن الفترة المطلوبة حاليًا.</div>`; return; }
+  box.innerHTML = `<div class="alert-box"><h4>مواعيد متاحة</h4>${data.appointments.map(a=>`
+    <div class="alert-item" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>${fmtDate(a.appointmentDate)} — ${esc(a.appointmentTime)}</span>
+      <button class="btn btn-primary btn-sm" onclick="bookAppt('${id}','${a.id}')">اختيار الموعد</button>
+    </div>`).join('')}</div>`;
+}
+async function bookAppt(customerId, appointmentId){
+  const data = await api('bookAppointment', {customerId, appointmentId});
+  if(data.ok){ toast('تم تأكيد الحجز بنجاح','ok'); await loadCustomers(); drawCustomersTable(); openCustomerDetail(customerId); }
+}
+
+/* ======================= APPOINTMENTS ======================= */
+async function loadAppointments(filters){
+  const data = await api('listAppointments', {filters: filters||{}});
+  if(data.ok) STATE.appointments = data.appointments;
+  return data.ok;
+}
+async function renderAppointments(){
+  const c = document.getElementById('page-content');
+  c.innerHTML = `
+    <div class="toolbar">
+      <select id="af-status"><option value="">كل الحالات</option>${Object.entries(APPT_LABELS).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('')}</select>
+      <button class="btn btn-ghost btn-sm" onclick="applyApptFilters()">فلترة</button>
+      <div class="spacer"></div>
+      <button class="btn btn-primary btn-sm" onclick="openBulkApptModal()">+ إضافة مواعيد</button>
+    </div>
+    <div class="panel"><div class="table-wrap" id="appt-table"></div></div>`;
+  await loadAppointments();
+  drawApptTable();
+}
+function applyApptFilters(){
+  loadAppointments({status: document.getElementById('af-status').value}).then(drawApptTable);
+}
+function drawApptTable(){
+  const wrap = document.getElementById('appt-table');
+  if(!STATE.appointments.length){ wrap.innerHTML = `<div class="empty-state"><div class="ic">🕌</div>لا توجد مواعيد بعد</div>`; return; }
+  wrap.innerHTML = `<table><thead><tr>
+    <th>التاريخ</th><th>الوقت</th><th>الحالة</th><th>العميل</th><th>المصدر</th><th>الموظف</th><th></th>
+  </tr></thead><tbody>
+  ${STATE.appointments.map(a=>{
+    const cust = STATE.customers.find(c=>c.id===a.customerId);
+    return `<tr>
+    <td>${fmtDate(a.appointmentDate)}</td><td>${esc(a.appointmentTime)}</td>
+    <td>${badge(APPT_LABELS, a.status)}</td>
+    <td>${cust ? esc(cust.fullName) : (a.customerId ? 'عميل #'+a.customerId.slice(0,6) : '-')}</td>
+    <td>${esc(a.source||'-')}</td><td>${esc(a.bookedBy||'-')}</td>
+    <td class="row-actions">${a.status==='AVAILABLE' ? `<button class="link-btn" onclick="deleteAppt('${a.id}')" style="color:var(--red);">حذف</button>` : ''}</td>
+  </tr>`;}).join('')}
+  </tbody></table>`;
+}
+async function deleteAppt(id){
+  if(!confirm('حذف هذا الموعد؟')) return;
+  const data = await api('deleteAppointment', {id});
+  if(data.ok){ toast('تم الحذف','ok'); loadAppointments().then(drawApptTable); }
+}
+function openBulkApptModal(){
+  openModal(`
+    <div class="modal-head"><h3>إضافة مواعيد جديدة</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:12.5px; color:var(--ink-soft); margin-top:0;">أدخل موعدًا في كل سطر بالصيغة: <code>YYYY-MM-DD, HH:MM</code></p>
+      <textarea id="bulk-appts" rows="8" style="width:100%; padding:10px; border:1px solid var(--line); border-radius:8px;" placeholder="2026-10-20, 10:00
+2026-10-20, 11:00
+2026-10-21, 09:30"></textarea>
+      <div class="field" style="margin-top:12px;"><label>المصدر</label><input id="bulk-source" value="يدوي"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" onclick="saveBulkAppts()">إضافة</button>
+      <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+    </div>`);
+}
+async function saveBulkAppts(){
+  const lines = document.getElementById('bulk-appts').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  const source = document.getElementById('bulk-source').value;
+  const appointments = lines.map(l=>{
+    const [date, time] = l.split(',').map(s=>s.trim());
+    return {date, time, source};
+  }).filter(a=>a.date && a.time);
+  if(!appointments.length){ toast('لم يتم إدخال مواعيد صحيحة', 'err'); return; }
+  const data = await api('addAppointmentsBulk', {appointments});
+  if(data.ok){
+    toast(`تمت إضافة ${data.created} موعد${data.matches?' — تم إيجاد مواعيد مناسبة لـ '+data.matches+' عميل':''}`,'ok');
+    closeModal(); loadAppointments().then(drawApptTable);
+  }
+}
+
+/* ======================= DAILY FOLLOW-UP ======================= */
+async function renderFollowUp(){
+  const c = document.getElementById('page-content');
+  c.innerHTML = '<div class="panel panel-pad">جاري التحميل...</div>';
+  const data = await api('dailyFollowUp', {});
+  if(!data.ok) return;
+  const f = data.followUp;
+  const section = (title, list, icon) => `
+    <div class="panel panel-pad" style="margin-bottom:16px;">
+      <div class="section-title">${icon} ${title} <span style="color:var(--ink-soft); font-weight:400;">(${list.length})</span></div>
+      ${list.length ? `<div class="table-wrap"><table><thead><tr><th>الاسم</th><th>الهاتف</th><th>المغادرة</th><th>الحالة</th><th>الموظف</th></tr></thead><tbody>
+        ${list.map(cu=>`<tr>
+          <td><a href="javascript:void(0)" onclick="quickOpenCustomer('${cu.id}')" style="font-weight:600;color:var(--teal-dark);">${esc(cu.fullName)}</a></td>
+          <td>${esc(cu.phone||'-')}</td><td>${fmtDate(cu.departureDate)}</td>
+          <td>${badge(BOOKING_LABELS, cu.bookingStatus)}</td><td>${esc(cu.assignedEmployee||'-')}</td>
+        </tr>`).join('')}</tbody></table></div>` : `<div class="empty-state">لا يوجد عملاء في هذا القسم</div>`}
+    </div>`;
+  c.innerHTML = section('يجب البحث لهم اليوم', f.searching, '🔎') +
+    section('ظهرت لهم مواعيد مناسبة', f.available, '🟡') +
+    section('موعد سفرهم قريب (خلال 3 أيام)', f.upcoming, '⏰') +
+    section('يحتاجون إعادة حجز', f.rebook, '🔙') +
+    section('تحتاج بياناتهم تحديث', f.updateNeeded, '⚠️');
+}
+async function quickOpenCustomer(id){
+  await loadCustomers(); drawCustomersTableSkip(); openCustomerDetail(id);
+}
+function drawCustomersTableSkip(){}
+
+/* ======================= REPORTS ======================= */
+let reportRange = null;
+async function renderReports(){
+  const c = document.getElementById('page-content');
+  c.innerHTML = `
+    <div class="pill-tabs" id="report-tabs">
+      <button class="pill-tab active" data-r="today" onclick="setReportRange('today')">اليوم</button>
+      <button class="pill-tab" data-r="week" onclick="setReportRange('week')">الأسبوع</button>
+      <button class="pill-tab" data-r="month" onclick="setReportRange('month')">الشهر</button>
+      <button class="pill-tab" data-r="all" onclick="setReportRange('all')">الكل</button>
+    </div>
+    <div id="report-body"></div>`;
+  setReportRange('all');
+}
+function setReportRange(kind){
+  document.querySelectorAll('#report-tabs .pill-tab').forEach(b=>b.classList.toggle('active', b.dataset.r===kind));
+  const now = new Date(); let from=null;
+  if(kind==='today'){ from = new Date(now.getFullYear(),now.getMonth(),now.getDate()).toISOString(); }
+  if(kind==='week'){ from = new Date(now.getTime()-7*86400000).toISOString(); }
+  if(kind==='month'){ from = new Date(now.getTime()-30*86400000).toISOString(); }
+  reportRange = from ? {from} : {};
+  loadReport();
+}
+async function loadReport(){
+  const data = await api('reportsSummary', {range: reportRange});
+  if(!data.ok) return;
+  const r = data.report;
+  const cards = [
+    ['إجمالي العملاء', r.totalCustomers], ['حجوزات مؤكدة', r.confirmed], ['بانتظار موعد', r.waiting],
+    ['لم يتم حجزهم', r.notBooked], ['ملغاة', r.cancelled], ['مكتملة', r.completed],
+    ['عمليات إلغاء', r.cancellations], ['عمليات إعادة حجز', r.rebooks], ['معدل الإتمام', r.completionRate+'%']
+  ];
+  const byEmp = Object.entries(r.byEmployee);
+  document.getElementById('report-body').innerHTML = `
+    <div class="report-grid">${cards.map(([l,n])=>`<div class="stat-card"><div class="num">${n}</div><div class="lbl">${l}</div></div>`).join('')}</div>
+    <div class="panel panel-pad">
+      <div class="section-title">عدد العملاء لكل موظف</div>
+      <div class="table-wrap"><table><thead><tr><th>الموظف</th><th>عدد العملاء</th></tr></thead><tbody>
+        ${byEmp.map(([e,n])=>`<tr><td>${esc(e)}</td><td>${n}</td></tr>`).join('') || '<tr><td colspan=2 style="text-align:center;color:var(--ink-soft);">لا توجد بيانات</td></tr>'}
+      </tbody></table></div>
+      <div style="margin-top:14px;"><button class="btn btn-ghost btn-sm" onclick="exportReportCsv(${JSON.stringify(r).replace(/"/g,'&quot;')})">تصدير CSV</button></div>
+    </div>`;
+}
+function exportReportCsv(r){
+  const rows = [['المؤشر','القيمة'],
+    ['إجمالي العملاء',r.totalCustomers],['حجوزات مؤكدة',r.confirmed],['بانتظار موعد',r.waiting],
+    ['لم يتم حجزهم',r.notBooked],['ملغاة',r.cancelled],['مكتملة',r.completed],
+    ['عمليات إلغاء',r.cancellations],['عمليات إعادة حجز',r.rebooks],['معدل الإتمام %',r.completionRate]];
+  downloadCsv(rows, 'report.csv');
+}
+
+/* ======================= ACTIVITY LOGS ======================= */
+async function renderLogs(){
+  const c = document.getElementById('page-content');
+  c.innerHTML = '<div class="panel panel-pad">جاري التحميل...</div>';
+  const data = await api('listActivityLogs', {});
+  if(!data.ok){ c.innerHTML = `<div class="panel panel-pad">${data.error||'غير مصرح'}</div>`; return; }
+  c.innerHTML = `<div class="panel"><div class="table-wrap"><table><thead><tr>
+    <th>الوقت</th><th>المستخدم</th><th>العملية</th><th>التفاصيل</th>
+  </tr></thead><tbody>
+  ${data.logs.map(l=>`<tr><td>${fmtDateTime(l.createdAt)}</td><td>${esc(l.userName)}</td><td>${esc(l.action)}</td><td>${esc(l.description)}</td></tr>`).join('') || '<tr><td colspan=4 style="text-align:center;">لا يوجد سجل</td></tr>'}
+  </tbody></table></div></div>`;
+}
+
+/* ======================= USERS ======================= */
+async function renderUsers(){
+  const c = document.getElementById('page-content');
+  c.innerHTML = `<div class="toolbar"><div class="spacer"></div><button class="btn btn-primary btn-sm" onclick="openUserForm()">+ إضافة موظف</button></div>
+    <div class="panel"><div class="table-wrap" id="users-table"></div></div>`;
+  const data = await api('listUsers', {});
+  if(!data.ok) return;
+  STATE.users = data.users;
+  drawUsersTable();
+}
+function drawUsersTable(){
+  document.getElementById('users-table').innerHTML = `<table><thead><tr>
+    <th>الاسم</th><th>البريد</th><th>الصلاحية</th><th>الحالة</th><th></th>
+  </tr></thead><tbody>
+  ${STATE.users.map(u=>`<tr>
+    <td>${esc(u.name)}</td><td>${esc(u.email)}</td>
+    <td>${u.role==='admin'?'مدير':'موظف'}</td>
+    <td><span class="badge" style="background:${u.status==='active'?'var(--teal-soft)':'var(--red-soft)'}; color:${u.status==='active'?'var(--teal-dark)':'var(--red)'};">${u.status==='active'?'نشط':'معطل'}</span></td>
+    <td class="row-actions">
+      <button class="link-btn" onclick="openUserForm('${u.id}')">تعديل</button>
+      <button class="link-btn" onclick="toggleUser('${u.id}')" style="color:var(--red);">${u.status==='active'?'تعطيل':'تفعيل'}</button>
+    </td>
+  </tr>`).join('')}
+  </tbody></table>`;
+}
+function openUserForm(id){
+  const u = id ? STATE.users.find(x=>x.id===id) : {};
+  openModal(`
+    <div class="modal-head"><h3>${id?'تعديل موظف':'إضافة موظف'}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>الاسم</label><input id="u-name" value="${esc(u.name)}"></div>
+      <div class="field"><label>البريد الإلكتروني</label><input id="u-email" value="${esc(u.email)}"></div>
+      <div class="field"><label>الصلاحية</label>
+        <select id="u-role"><option value="staff" ${u.role==='staff'?'selected':''}>موظف</option><option value="admin" ${u.role==='admin'?'selected':''}>مدير</option></select>
+      </div>
+      <div class="field"><label>كلمة المرور ${id?'(اتركها فارغة لعدم التغيير)':''}</label><input type="password" id="u-password" placeholder="${id?'••••••••':'Change@123'}"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" onclick="saveUser(${id?`'${id}'`:'null'})">حفظ</button>
+      <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+    </div>`);
+}
+async function saveUser(id){
+  const payload = {name: val('u-name'), email: val('u-email'), role: val('u-role'), password: val('u-password')};
+  const data = id ? await api('updateUser', Object.assign({id}, payload)) : await api('addUser', payload);
+  if(data.ok){ toast(id?'تم التحديث':'تمت الإضافة','ok'); closeModal(); renderUsers(); }
+}
+async function toggleUser(id){
+  const data = await api('toggleUserStatus', {id});
+  if(data.ok){ toast('تم تحديث الحالة','ok'); renderUsers(); }
+}
+
+/* ======================= NOTIFICATIONS ======================= */
+async function loadNotifications(){
+  const data = await api('listNotifications', {});
+  if(!data.ok) return;
+  STATE.notifications = data.notifications;
+  const unread = data.notifications.filter(n=>String(n.isRead)!=='true').length;
+  const dot = document.getElementById('notif-count');
+  if(unread>0){ dot.style.display='flex'; dot.textContent=unread; } else { dot.style.display='none'; }
+  const panel = document.getElementById('notif-panel');
+  panel.innerHTML = data.notifications.length ? data.notifications.map(n=>`
+    <div class="notif-item ${String(n.isRead)!=='true'?'unread':''}" onclick="markRead('${n.id}')">
+      <strong>${esc(n.title)}</strong>${esc(n.message)}<div class="time">${fmtDateTime(n.createdAt)}</div>
+    </div>`).join('') : `<div class="notif-item">لا توجد تنبيهات</div>`;
+}
+async function markRead(id){ await api('markNotificationRead', {id}); loadNotifications(); }
+function toggleNotifPanel(){ document.getElementById('notif-panel').classList.toggle('active'); }
+document.addEventListener('click', e=>{
+  const panel = document.getElementById('notif-panel');
+  if(panel && !panel.contains(e.target) && !e.target.closest('.icon-btn')) panel.classList.remove('active');
+});
+
+/* ======================= BOOT ======================= */
+document.getElementById('login-password').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+if(STATE.token && STATE.user){ enterApp(); }
+</script>
+</body>
+</html>
