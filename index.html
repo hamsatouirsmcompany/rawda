@@ -22,7 +22,13 @@ nav a:hover{color:var(--gold)}
 .btn.ghost{background:transparent;color:var(--sky);border:1.5px solid var(--sky)}
 .btn.sm{padding:5px 12px;font-size:.9rem}
 .btn.red{background:#b3261e;color:#fff}
-.hero{background:var(--ink) linear-gradient(180deg,var(--ink),var(--ink2));color:#fff;padding:56px 20px 72px;text-align:center;border-bottom:8px solid var(--gold)}
+.hero{position:relative;overflow:hidden;background:var(--ink);color:#fff;padding:48px 20px 72px;text-align:center;border-bottom:8px solid var(--gold);min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0e2a38cc,#0e2a38aa 50%,#0e2a38ee);z-index:1}
+.hero>*:not(video){position:relative;z-index:2}
+.hero .hero-logo{width:min(220px,55vw);height:auto;margin:0 auto 12px;display:block}
+.foot-logo{height:70px;display:block;margin:0 auto 10px}
+@media(prefers-reduced-motion:reduce){.hero video{display:none}.hero{background:var(--ink) url(hero-poster.jpg) center/cover}}
 .hero h1{font-family:'Reem Kufi',serif;font-size:clamp(2rem,6vw,3.6rem);margin:0 0 10px;line-height:1.3}
 .hero p{max-width:560px;margin:0 auto 24px;color:var(--sky);font-size:1.1rem}
 main{max-width:1100px;margin:auto;padding:20px}
@@ -67,6 +73,8 @@ input,select,textarea{width:100%;font:inherit;padding:9px 11px;border:1.5px soli
 </header>
 
 <div class="hero">
+  <video autoplay muted loop playsinline preload="metadata" poster="hero-poster.jpg" aria-hidden="true"><source src="hero.mp4" type="video/mp4"></video>
+  <img class="hero-logo" src="logo.png" alt="همسة للسياحة">
   <h1>رحلتك إلى الحرمين تبدأ من همسة</h1>
   <p>عروض الحج والعمرة وبرامج التيسير في مكان واحد. اختر العرض المناسب وتواصل معنا للحجز.</p>
   <a class="btn" href="#sections">شاهد العروض</a>
@@ -74,7 +82,7 @@ input,select,textarea{width:100%;font:inherit;padding:9px 11px;border:1.5px soli
 
 <main id="sections"></main>
 
-<footer>© همسة للسياحة — جميع الحقوق محفوظة</footer>
+<footer><img class="foot-logo" src="logo.png" alt="همسة للسياحة">© همسة للسياحة — جميع الحقوق محفوظة</footer>
 
 <dialog id="loginDlg">
   <h3 id="authTitle">تسجيل الدخول</h3>
@@ -103,7 +111,6 @@ input,select,textarea{width:100%;font:inherit;padding:9px 11px;border:1.5px soli
   <label for="f_price">السعر</label><input id="f_price" placeholder="مثال: 45,000 جنيه">
   <label for="f_details">التفاصيل</label><textarea id="f_details" rows="4"></textarea>
   <label for="f_image">رابط صورة (اختياري)</label><input id="f_image" dir="ltr">
-  <label for="f_link">رابط الحجز / واتساب (اختياري)</label><input id="f_link" dir="ltr">
   <div class="msg" id="offerMsg"></div>
   <div class="row"><button class="btn" id="saveOffer">حفظ</button><button class="btn ghost" style="color:var(--ink);border-color:var(--ink)" data-close>إلغاء</button></div>
 </dialog>
@@ -113,9 +120,9 @@ input,select,textarea{width:100%;font:inherit;padding:9px 11px;border:1.5px soli
 const API_URL = "PUT_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
 
 const SECTIONS = [
-  {id:"umrah", name:"عروض العمرة", site:"https://amrkhaledmohamedeng-create.github.io/hamsa-torism/"},
-  {id:"tayser", name:"عروض التيسير", site:"https://hamsatouirsmcompany.github.io/TAYSER/"},
-  {id:"hajj", name:"عروض الحج", site:"https://amrkhaledmohamedeng-create.github.io/alhaju/"}
+  {id:"umrah", name:"عروض العمرة"},
+  {id:"tayser", name:"عروض التيسير"},
+  {id:"hajj", name:"عروض الحج"}
 ];
 
 const SEED = [
@@ -125,8 +132,7 @@ const SEED = [
   "title": "عمرة التيسير 1,000 جنيه شهريًا",
   "price": "1,000 جنيه / شهريًا",
   "details": "المدة: 24 شهر • الإجمالي: 24,000 جنيه\nاشتراك شهري بدون مقدم وبدون فوائد وبدون مصاريف إدارية.\nقرعة علنية كل 3 شهور لتحديد أدوار السفر، والسفر بسعر الموسم كاش.\nكل المشتركين يدخلون السحب على عمرة مجانية.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "tayser-2",
@@ -134,8 +140,7 @@ const SEED = [
   "title": "عمرة التيسير 1,250 جنيه شهريًا",
   "price": "1,250 جنيه / شهريًا",
   "details": "المدة: 24 شهر • الإجمالي: 30,000 جنيه\nاشتراك شهري بدون مقدم وبدون فوائد وبدون مصاريف إدارية.\nقرعة علنية كل 3 شهور لتحديد أدوار السفر، والسفر بسعر الموسم كاش.\nكل المشتركين يدخلون السحب على عمرة مجانية.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "tayser-3",
@@ -143,8 +148,7 @@ const SEED = [
   "title": "عمرة التيسير 1,500 جنيه شهريًا",
   "price": "1,500 جنيه / شهريًا",
   "details": "المدة: 24 شهر • الإجمالي: 36,000 جنيه\nاشتراك شهري بدون مقدم وبدون فوائد وبدون مصاريف إدارية.\nقرعة علنية كل 3 شهور لتحديد أدوار السفر، والسفر بسعر الموسم كاش.\nكل المشتركين يدخلون السحب على عمرة مجانية.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "tayser-4",
@@ -152,8 +156,7 @@ const SEED = [
   "title": "عمرة التيسير 2,000 جنيه شهريًا",
   "price": "2,000 جنيه / شهريًا",
   "details": "المدة: 12 شهر • الإجمالي: 24,000 جنيه\nاشتراك شهري بدون مقدم وبدون فوائد وبدون مصاريف إدارية.\nقرعة علنية كل 3 شهور لتحديد أدوار السفر، والسفر بسعر الموسم كاش.\nكل المشتركين يدخلون السحب على عمرة مجانية.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "tayser-5",
@@ -161,8 +164,7 @@ const SEED = [
   "title": "عمرة التيسير 2,500 جنيه شهريًا",
   "price": "2,500 جنيه / شهريًا",
   "details": "المدة: 12 شهر • الإجمالي: 30,000 جنيه\nاشتراك شهري بدون مقدم وبدون فوائد وبدون مصاريف إدارية.\nقرعة علنية كل 3 شهور لتحديد أدوار السفر، والسفر بسعر الموسم كاش.\nكل المشتركين يدخلون السحب على عمرة مجانية.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "tayser-6",
@@ -170,8 +172,7 @@ const SEED = [
   "title": "عمرة التيسير 3,000 جنيه شهريًا",
   "price": "3,000 جنيه / شهريًا",
   "details": "المدة: 12 شهر • الإجمالي: 36,000 جنيه\nاشتراك شهري بدون مقدم وبدون فوائد وبدون مصاريف إدارية.\nقرعة علنية كل 3 شهور لتحديد أدوار السفر، والسفر بسعر الموسم كاش.\nكل المشتركين يدخلون السحب على عمرة مجانية.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "tayser-7",
@@ -179,8 +180,7 @@ const SEED = [
   "title": "عمرة التيسير الذهبية",
   "price": "4,000 جنيه / شهريًا",
   "details": "المدة: 12 شهر • الإجمالي: 48,000 جنيه\nاشتراك شهري بدون مقدم وبدون فوائد وبدون مصاريف إدارية.\nقرعة علنية كل 3 شهور لتحديد أدوار السفر، والسفر بسعر الموسم كاش.\nكل المشتركين يدخلون السحب على عمرة مجانية.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "tayser-8",
@@ -188,8 +188,7 @@ const SEED = [
   "title": "عمرة التيسير البلاتينية",
   "price": "5,000 جنيه / شهريًا",
   "details": "المدة: 12 شهر • الإجمالي: 60,000 جنيه\nاشتراك شهري بدون مقدم وبدون فوائد وبدون مصاريف إدارية.\nقرعة علنية كل 3 شهور لتحديد أدوار السفر، والسفر بسعر الموسم كاش.\nكل المشتركين يدخلون السحب على عمرة مجانية.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "tayser-9",
@@ -197,8 +196,7 @@ const SEED = [
   "title": "تيسير شعبان ورمضان",
   "price": "3,500 جنيه / شهريًا",
   "details": "المدة: 12 شهر • الإجمالي: 42,000 جنيه\nاشتراك شهري بدون مقدم وبدون فوائد وبدون مصاريف إدارية.\nقرعة علنية كل 3 شهور لتحديد أدوار السفر، والسفر بسعر الموسم كاش.\nكل المشتركين يدخلون السحب على عمرة مجانية.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "tayser-10",
@@ -206,8 +204,7 @@ const SEED = [
   "title": "تثبيت سعر رمضان",
   "price": "45,000 جنيه",
   "details": "سعر ثابت بدون تذاكر الطيران.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "tayser-11",
@@ -215,8 +212,7 @@ const SEED = [
   "title": "تيسير رمضان — 16 شهر",
   "price": "3,000 جنيه / شهريًا",
   "details": "المدة: 16 شهر، يبدأ من شهر 6.\nحجز مرن: يمكن الحجز بعد بداية الحجز بدفع الشهور السابقة بأثر رجعي.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "tayser-12",
@@ -224,8 +220,7 @@ const SEED = [
   "title": "تيسير رمضان — 20 شهر",
   "price": "2,500 جنيه / شهريًا",
   "details": "المدة: 20 شهر، يبدأ من شهر 5.\nحجز مرن: يمكن الحجز بعد بداية الحجز بدفع الشهور السابقة بأثر رجعي.",
-  "image": "",
-  "link": "https://hamsatouirsmcompany.github.io/TAYSER/"
+  "image": ""
  },
  {
   "id": "umrah-1",
@@ -233,8 +228,7 @@ const SEED = [
   "title": "العمرة بالقسط",
   "price": "ادفع 50% أو 60%",
   "details": "اختر البرنامج وادفع 50% أو 60% وقسّط الباقي من 3 إلى 12 شهر بدون تعقيد.",
-  "image": "",
-  "link": "https://amrkhaledmohamedeng-create.github.io/hamsa-torism/"
+  "image": ""
  },
  {
   "id": "umrah-2",
@@ -242,8 +236,7 @@ const SEED = [
   "title": "عمرة كاش — ريع بخش (اقتصادي بالمواصلات)",
   "price": "من 40,500 جنيه (رباعي)",
   "details": "المدينة: نسك المدينة / درة الإيمان / طيبة هيلز — 3 ليالي\nمكة: قصر العليان / النخبة 1 / أبراج القصواء — 11 ليلة\nرباعي 40,500 • ثلاثي 43,500 • ثنائي 48,900 • سينجل 64,500 • طفل 31,500 • رضيع 17,500",
-  "image": "",
-  "link": "https://amrkhaledmohamedeng-create.github.io/hamsa-torism/"
+  "image": ""
  },
  {
   "id": "umrah-3",
@@ -251,8 +244,7 @@ const SEED = [
   "title": "عمرة كاش — اقتصادي مشي (بير بليلة)",
   "price": "من 42,000 جنيه (رباعي)",
   "details": "المدينة: نسك المدينة / درة الإيمان / طيبة هيلز — 3 ليالي\nمكة: إعمار أفاق — 11 ليلة\nرباعي 42,000 • ثلاثي 46,500 • ثنائي 52,900 • سينجل 72,900 • طفل 31,500 • رضيع 17,500",
-  "image": "",
-  "link": "https://amrkhaledmohamedeng-create.github.io/hamsa-torism/"
+  "image": ""
  },
  {
   "id": "umrah-4",
@@ -260,8 +252,7 @@ const SEED = [
   "title": "عمرة كاش — اقتصادي مشي (أجياد السد)",
   "price": "من 42,500 جنيه (رباعي)",
   "details": "المدينة: نسك المدينة / درة الإيمان / طيبة هيلز — 3 ليالي\nمكة: واحة الضيافة / العليان أجياد — 11 ليلة\nرباعي 42,500 • ثلاثي 46,900 • ثنائي 53,500 • سينجل 73,900 • طفل 31,500 • رضيع 17,500",
-  "image": "",
-  "link": "https://amrkhaledmohamedeng-create.github.io/hamsa-torism/"
+  "image": ""
  },
  {
   "id": "umrah-5",
@@ -269,8 +260,7 @@ const SEED = [
   "title": "عمرة كاش 5 نجوم (أ)",
   "price": "من 66,900 جنيه (رباعي)",
   "details": "3 ليالي المدينة + 4 ليالي مكة بالإفطار\nالطيران: سعودي — القاهرة / المدينة / جدة / القاهرة\nالمدينة: فندق الحرم — مكة: الصفوة البرج الثالث (أول مطل على الحرم)\nرباعي 66,900 • ثلاثي 70,900 • ثنائي 79,900",
-  "image": "",
-  "link": "https://amrkhaledmohamedeng-create.github.io/hamsa-torism/"
+  "image": ""
  },
  {
   "id": "umrah-6",
@@ -278,8 +268,7 @@ const SEED = [
   "title": "عمرة كاش 5 نجوم (ب)",
   "price": "من 55,500 جنيه (رباعي)",
   "details": "3 ليالي المدينة + 4 ليالي مكة بالإفطار\nالطيران: سعودي — القاهرة / المدينة / جدة / القاهرة\nالمدينة: درة الإيمان — مكة: الشهداء (أول مطل على الحرم)\nرباعي 55,500 • ثلاثي 58,900 • ثنائي 64,500",
-  "image": "",
-  "link": "https://amrkhaledmohamedeng-create.github.io/hamsa-torism/"
+  "image": ""
  },
  {
   "id": "umrah-7",
@@ -287,8 +276,7 @@ const SEED = [
   "title": "عمرة كاش — اقتصادي مميز",
   "price": "من 47,000 جنيه (رباعي)",
   "details": "4 ليالي المدينة + 5 ليالي مكة\nالطيران: سعودي — القاهرة / المدينة / جدة / القاهرة\nالمدينة: كونكورد دار الخير — مكة: الماسة جراند (400 متر من الحرم)\nرباعي 47,000 • ثلاثي 50,900 • ثنائي 57,900",
-  "image": "",
-  "link": "https://amrkhaledmohamedeng-create.github.io/hamsa-torism/"
+  "image": ""
  },
  {
   "id": "hajj-1",
@@ -296,8 +284,7 @@ const SEED = [
   "title": "الحج السياحي",
   "price": "395,000 – 650,000 جنيه",
   "details": "عدة مستويات وبرامج بإقامة مختلفة وقرب متفاوت من الحرم.\nخدمات مميزة للحجاج مع إشراف ومتابعة.",
-  "image": "",
-  "link": "https://amrkhaledmohamedeng-create.github.io/alhaju/"
+  "image": ""
  },
  {
   "id": "hajj-2",
@@ -305,8 +292,7 @@ const SEED = [
   "title": "الحج الميسر",
   "price": "",
   "details": "برنامج حج ميسر بخدمات متكاملة وأسعار وخيارات متعددة. استفسر عن التفاصيل والأسعار.",
-  "image": "",
-  "link": "https://amrkhaledmohamedeng-create.github.io/alhaju/"
+  "image": ""
  },
  {
   "id": "hajj-3",
@@ -314,8 +300,7 @@ const SEED = [
   "title": "الحج الميسر بالتقسيط",
   "price": "تقسيط حتى 120,000 جنيه",
   "details": "قسّط جزءًا من سعر أي برنامج حج على 24 شهر بواقع 5,000 جنيه شهريًا، وادفع باقي سعر البرنامج مقدمًا.",
-  "image": "",
-  "link": "https://amrkhaledmohamedeng-create.github.io/alhaju/"
+  "image": ""
  },
  {
   "id": "hajj-4",
@@ -323,8 +308,7 @@ const SEED = [
   "title": "حج القرعة",
   "price": "",
   "details": "سجّل اهتمامك، واختر البرنامج المناسب وسنتواصل معك لاستكمال الإجراءات.",
-  "image": "",
-  "link": "https://amrkhaledmohamedeng-create.github.io/alhaju/"
+  "image": ""
  }
 ];
 let offers = SEED, editingId = null, mode = "login";
@@ -359,12 +343,11 @@ function render(){
         <div class="bd"><h3>${esc(o.title)}</h3><div class="dt">${esc(o.details)}</div>
         ${o.price ? `<div class="price"><b>${esc(o.price)}</b></div>` : ""}
         <div class="row"><button class="btn sm" data-sub="${esc(o.id)}">اشترك في العرض</button>
-        ${o.link ? `<a class="btn sm ghost" style="color:var(--ink);border-color:var(--ink)" href="${esc(o.link)}" target="_blank" rel="noopener">تفاصيل أكثر</a>` : ""}
         ${isAdmin() ? `<button class="btn sm ghost" style="color:var(--ink);border-color:var(--ink)" data-edit="${esc(o.id)}">تعديل</button><button class="btn sm red" data-del="${esc(o.id)}">حذف</button>` : ""}</div></div>
       </article>`;
     }).join("");
-    return `<section id="${s.id}"><div class="sec-head"><h2>${s.name}</h2><a href="${s.site}" target="_blank" rel="noopener">كل العروض في الموقع الكامل</a></div>
-      ${cards ? `<div class="grid">${cards}</div>` : `<div class="empty">لا توجد عروض منشورة هنا حاليًا. تابع الموقع الكامل لمشاهدة آخر العروض.</div>`}</section>`;
+    return `<section id="${s.id}"><div class="sec-head"><h2>${s.name}</h2></div>
+      ${cards ? `<div class="grid">${cards}</div>` : `<div class="empty">لا توجد عروض منشورة هنا حاليًا. تابعنا قريبًا لمشاهدة آخر العروض.</div>`}</section>`;
   }).join("");
   $("loginBtn").style.display = session ? "none" : "";
   $("logoutBtn").style.display = session ? "" : "none";
@@ -444,13 +427,13 @@ function openOffer(o){
   $("offerTitle").textContent = o ? "تعديل العرض" : "عرض جديد";
   $("f_section").value = o?.section || SECTIONS[0].id;
   $("f_title").value = o?.title || ""; $("f_price").value = o?.price || "";
-  $("f_details").value = o?.details || ""; $("f_image").value = o?.image || ""; $("f_link").value = o?.link || "";
+  $("f_details").value = o?.details || ""; $("f_image").value = o?.image || "";
   $("offerMsg").textContent = ""; $("offerDlg").showModal();
 }
 $("addBtn").onclick = () => openOffer(null);
 $("saveOffer").onclick = async () => {
   const offer = {id:editingId, section:$("f_section").value, title:$("f_title").value.trim(), price:$("f_price").value.trim(),
-    details:$("f_details").value.trim(), image:$("f_image").value.trim(), link:$("f_link").value.trim()};
+    details:$("f_details").value.trim(), image:$("f_image").value.trim(), link:""};
   if(!offer.title){ $("offerMsg").textContent = "اكتب اسم العرض."; return; }
   $("offerMsg").textContent = "جارٍ الحفظ...";
   const d = await api({action:"save", token:token(), offer});
